@@ -9,8 +9,11 @@ Installation
 Usage
 -----
 1. Create a dynamic action firing after refresh of an interactive report.
-2. Select plugin as action and set affected elements to "Triggering Element".
+2. Select plugin as action and set affected elements to "Triggering Element" and leave "Fire on Page Load" set to "Yes".
 3. Modify the column's single row headings the way you want them to be shown.
+
+If you want to enable the plugin for all interactive reports in an application create the plugin on the global page.  
+Set "Selection Type" to "jQuery Selector" and enter ".a-IRR" as selector.
 
 How It Works
 ------------

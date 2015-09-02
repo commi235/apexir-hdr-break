@@ -123,6 +123,15 @@ wwv_flow_api.create_plugin(
 ,p_standard_attributes=>'TRIGGERING_ELEMENT:REQUIRED:ONLOAD'
 ,p_substitute_attributes=>true
 ,p_subscribe_plugin_settings=>true
+,p_help_text=>wwv_flow_utilities.join(wwv_flow_t_varchar2(
+'This plugin allows you to utilize the "Single Row View Labels" as column headings for the report view.<br />',
+'To use the plugin follow the steps below:',
+'<ul>',
+'<li>Create a dynamic action targeting one or multiple interactive reports.</li>',
+'<li>As action choose "IR Header Linebreaks".</li>',
+'<li>Set "Affected Elements" to "Triggering Element" and leave "Fire on Page Load" set to "Yes".</li>',
+'</ul>',
+'You can also put the dynamic action on the global page and use ".a-IRR" as jQuery selector to enable the plugin for all interactive reports in the application.'))
 ,p_version_identifier=>'0.5'
 );
 end;
