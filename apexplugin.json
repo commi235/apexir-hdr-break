@@ -1,0 +1,27 @@
+{
+"name"        : "APEX IR Column Headings with Line Breaks",
+"version"     : "0.5",
+"description" : "Helps you to migrate to APEX 5 when using HTML in IR column headings.",
+"keywords"    : ["Interactive Report", "Column Heading"],
+"homepage"    : "https://github.com/commi235/apexir-hdr-break",
+"bugs"        : { "url"   : "https://github.com/commi235/apexir-hdr-break/issues",
+                  "email" : "moritz.klein@it-twins.de"
+                },
+"license"     : "MIT",
+"author"      : { "name"  : "Moritz Klein",
+                  "email" : "moritz.klein@it-twins.de",
+                  "url"   : "http://blog.danielh.de/"
+                },
+"repository"  : { "type" : "git",
+                  "url"  : "https://github.com/commi235/apexir-hdr-break.git"
+                },
+"oracle"      : { "versions" : ["11.2.0.1", "12.1.0.1"],
+                  "apex"     : { "versions" : ["5.0.0"],
+                                 "plugin"   : { "internalName" : "DE.IT-TWINS.IRHDRBR",
+                                                "type" : "dynamic action",
+                                                "demo" : "https://apex.oracle.com/pls/apex/f?p=79731",
+                                                "previewImage" : "https://raw.githubusercontent.com/commi235/apexir-hdr-break/master/img/preview.png"
+                                              }
+                               }
+                }
+ }

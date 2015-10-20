@@ -13,10 +13,10 @@ whenever sqlerror exit sql.sqlcode rollback
 begin
 wwv_flow_api.import_begin (
  p_version_yyyy_mm_dd=>'2013.01.01'
-,p_release=>'5.0.1.00.06'
-,p_default_workspace_id=>313370
-,p_default_application_id=>101
-,p_default_owner=>'MKLEIN'
+,p_release=>'5.0.2.00.06'
+,p_default_workspace_id=>26036287808504013104
+,p_default_application_id=>79731
+,p_default_owner=>'MK_TEST'
 );
 end;
 /
@@ -28,14 +28,14 @@ end;
 prompt --application/shared_components/plugins/dynamic_action/de_it_twins_irhdrbr
 begin
 wwv_flow_api.create_plugin(
- p_id=>wwv_flow_api.id(17147978274898460)
+ p_id=>wwv_flow_api.id(15118483690763480972)
 ,p_plugin_type=>'DYNAMIC ACTION'
 ,p_name=>'DE.IT-TWINS.IRHDRBR'
 ,p_display_name=>'IR Header Linebreaks'
 ,p_category=>'STYLE'
 ,p_supported_ui_types=>'DESKTOP'
 ,p_plsql_code=>wwv_flow_utilities.join(wwv_flow_t_varchar2(
-'  c_js_function CONSTANT VARCHAR2(4000) := ',
+'  c_js_function constant varchar2(4000) := ',
 'q''[function de_itt_apexir_hdr_break()',
 '{ apex.server.plugin',
 '  (',
@@ -49,6 +49,19 @@ wwv_flow_api.create_plugin(
 '    }',
 '    );',
 '};]'';',
+'  ',
+'  cursor cur_ir_cols is',
+'    select coalesce( aapic.static_id, ''C'' || aapic.column_id ) column_id',
+'         , aapic.form_label',
+'      from apex_application_page_ir_col aapic',
+'         , apex_application_page_regions aapr',
+'     where aapic.region_id = aapr.region_id',
+'       and aapr.application_id = apex_application.g_flow_id',
+'       and ( aapr.region_id = to_number( regexp_substr( apex_application.g_x01, ''\d+'') )',
+'          or aapr.static_id = apex_application.g_x01',
+'           )',
+'       and aapic.report_label != aapic.form_label',
+'  ;',
 '',
 'function render',
 '  (',
@@ -73,11 +86,11 @@ wwv_flow_api.create_plugin(
 '    ',
 '    apex_javascript.add_inline_code',
 '    (',
-'      p_code => REPLACE(c_js_function, ''#AJAX_IDENT#'', l_result.ajax_identifier),',
+'      p_code => replace(c_js_function, ''#AJAX_IDENT#'', l_result.ajax_identifier),',
 '      p_key => ''de_itt_apexir_hdr_pkg''',
 '    );',
 '    ',
-'    RETURN l_result;',
+'    return l_result;',
 '  end render;',
 '',
 '  function callback',
@@ -101,22 +114,13 @@ wwv_flow_api.create_plugin(
 '    );',
 '',
 '    apex_json.open_object;',
-'    for rec in ( SELECT ''C'' || aapic.column_id column_id',
-'                      , aapic.form_label',
-'                  FROM apex_application_page_ir_col aapic',
-'                     , apex_application_page_regions aapr',
-'                 WHERE aapic.region_id = aapr.region_id',
-'                   AND aapr.application_id = apex_application.g_flow_id',
-'                   AND ( aapr.region_id = to_number( regexp_substr( apex_application.g_x01, ''\d+'') )',
-'                      OR aapr.static_id = apex_application.g_x01',
-'                       )',
-'                   AND aapic.report_label != aapic.form_label',
-'                )',
+'    for rec in cur_ir_cols',
 '    loop',
 '      apex_json.write( p_name => rec.column_id, p_value => rec.form_label);',
 '    end loop;',
 '    apex_json.close_all;',
-'    RETURN l_result;',
+'    ',
+'    return l_result;',
 '  end callback;'))
 ,p_render_function=>'render'
 ,p_ajax_function=>'callback'

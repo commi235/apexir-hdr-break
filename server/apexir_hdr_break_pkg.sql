@@ -1,6 +1,6 @@
-CREATE OR REPLACE PACKAGE APEXIR_HDR_BREAK_PKG 
+CREATE OR REPLACE PACKAGE APEXIR_HDR_BREAK_PKG
   AUTHID CURRENT_USER
-AS 
+AS
 
   function render
   (
@@ -9,7 +9,7 @@ AS
   )
     return apex_plugin.t_dynamic_action_render_result
   ;
-  
+
   function callback
   (
     p_dynamic_action in apex_plugin.t_dynamic_action,
@@ -24,20 +24,33 @@ END APEXIR_HDR_BREAK_PKG;
 CREATE OR REPLACE PACKAGE BODY APEXIR_HDR_BREAK_PKG
 AS
 
-  c_js_function CONSTANT VARCHAR2(4000) := 
+  c_js_function constant varchar2(4000) :=
 q'[function de_itt_apexir_hdr_break()
 { apex.server.plugin
   (
     '#AJAX_IDENT#'
   , { x01: this.affectedElements[0].id }
-  , { success: function( pData ) 
+  , { success: function( pData )
                { apex.jQuery.each( pData, function(index, value)
                    { apex.jQuery("#" + index + " > a").html(value); }
-                 ); 
+                 );
                }
     }
     );
 };]';
+
+  cursor cur_ir_cols is
+    select coalesce( aapic.static_id, 'C' || aapic.column_id ) column_id
+         , aapic.form_label
+      from apex_application_page_ir_col aapic
+         , apex_application_page_regions aapr
+     where aapic.region_id = aapr.region_id
+       and aapr.application_id = apex_application.g_flow_id
+       and ( aapr.region_id = to_number( regexp_substr( apex_application.g_x01, '\d+') )
+          or aapr.static_id = apex_application.g_x01
+           )
+       and aapic.report_label != aapic.form_label
+  ;
 
 function render
   (
@@ -47,8 +60,8 @@ function render
     return apex_plugin.t_dynamic_action_render_result
   as
     l_affected_elements apex_application_page_da_acts.affected_elements%type;
-    
-    
+
+
     l_result apex_plugin.t_dynamic_action_render_result;
   begin
     l_result.javascript_function := 'de_itt_apexir_hdr_break';
@@ -59,14 +72,14 @@ function render
       p_plugin => p_plugin,
       p_dynamic_action => p_dynamic_action
     );
-    
+
     apex_javascript.add_inline_code
     (
-      p_code => REPLACE(c_js_function, '#AJAX_IDENT#', l_result.ajax_identifier),
+      p_code => replace(c_js_function, '#AJAX_IDENT#', l_result.ajax_identifier),
       p_key => 'de_itt_apexir_hdr_pkg'
     );
-    
-    RETURN l_result;
+
+    return l_result;
   end render;
 
   function callback
@@ -90,22 +103,13 @@ function render
     );
 
     apex_json.open_object;
-    for rec in ( SELECT 'C' || aapic.column_id column_id
-                      , aapic.form_label
-                  FROM apex_application_page_ir_col aapic
-                     , apex_application_page_regions aapr
-                 WHERE aapic.region_id = aapr.region_id
-                   AND aapr.application_id = apex_application.g_flow_id
-                   AND ( aapr.region_id = to_number( regexp_substr( apex_application.g_x01, '\d+') )
-                      OR aapr.static_id = apex_application.g_x01
-                       )
-                   AND aapic.report_label != aapic.form_label
-                )
+    for rec in cur_ir_cols
     loop
       apex_json.write( p_name => rec.column_id, p_value => rec.form_label);
     end loop;
     apex_json.close_all;
-    RETURN l_result;
+
+    return l_result;
   end callback;
 
 END APEXIR_HDR_BREAK_PKG;
